@@ -5,7 +5,7 @@ L'algoritmo iterativo per moltiplicare le matrici visto a lezione è stato realiz
 Il metodo `multiply` permette di utilizzare l'algoritmo di programmazione dinamica (il vero lavoro viene svolto dal metodo privato `multiply_aux`).
 
 `standard_multiply` permette invece di moltiplicare in successione le matrici partendo dalle prime due:
-( ... ( ( ( A x B ) x C ) x D ) x ... )
+(... ( ( (A * B) * C) * D) * ...)
 
 
 
