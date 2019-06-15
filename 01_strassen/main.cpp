@@ -1,50 +1,53 @@
 #include <iostream>
-
 #include <ctime>
 #include <ratio>
 #include <chrono>
-
 #include "matrix_class.cpp"
+
+using namespace std::chrono;
 
 int main()
 {
+	int a = 4;
+	int b = 4;
+	int c = 4;
+	
+	high_resolution_clock::time_point s;
+	high_resolution_clock::time_point t;
+	duration<double> time_span;
 
-	int n = 1024;
-	int m = 1024;
-	int l = 1024;
+	for (int i = 0; i < 10; i++)
+	{
+		Matrix<double>* A = new Matrix<double>(a, b);
+		Matrix<double>* B = new Matrix<double>(b, c);
 
-	Matrix a = Matrix(n, m);
-	Matrix b = Matrix(m, l);
+		s = high_resolution_clock::now();
 
-	a.random();
-	b.random();
+		*A * *B;
 
-	using namespace std::chrono;
+		t = high_resolution_clock::now();
 
-// STRASSEN
+		time_span = duration_cast<duration<double>>(t - s);
 
-	high_resolution_clock::time_point t1 = high_resolution_clock::now();
+		std::cout << "DIM: 2^(" << 2 + i << ")\tStandard: " << time_span.count();
 
-	Matrix c = a.strassen(b);
+		s = high_resolution_clock::now();
 
-	high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		(*A).strassen(*B);
 
-	duration<double> time_span1 = duration_cast<duration<double>>(t2 - t1);
+		t = high_resolution_clock::now();
 
-	std::cout << "STRASSEN: " << time_span1.count() << " seconds." << std::endl;
+		time_span = duration_cast<duration<double>>(t - s);
 
+		std::cout << "\tStrassen: " << time_span.count() << std::endl;
 
-// STANDARD
+		a *= 2;
+		b *= 2;
+		c *= 2;
 
-	high_resolution_clock::time_point t3 = high_resolution_clock::now();
-
-	Matrix d = a*b;
-
-	high_resolution_clock::time_point t4 = high_resolution_clock::now();
-
-	duration<double> time_span2 = duration_cast<duration<double>>(t4 - t3);
-
-	std::cout << "STANDARD: " << time_span2.count() << " seconds." << std::endl;
+		delete A;
+		delete B;
+	}
 
 	std::cin.get();
 }

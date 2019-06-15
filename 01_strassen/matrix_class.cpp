@@ -4,21 +4,22 @@
 #include <iomanip> // setw()
 #include <math.h> // pow()
 
+template <typename T>
 class Matrix
 {
 private:
-
+	
 	int row;
 	int col;
 
-	double* v;
+	T* v;
 	// v[i][j] = v[i*col + j]
 
 private:
 
-	Matrix* newSub(int row_b, int row_e, int col_b, int col_e)
+	Matrix<T>* newSub(int row_b, int row_e, int col_b, int col_e)
 	{
-		Matrix* ptr = new Matrix(row_e - row_b + 1, col_e - col_b + 1);
+		Matrix<T>* ptr = new Matrix<T>(row_e - row_b + 1, col_e - col_b + 1);
 
 		int j = 0;
 		for (int i = 0; i < ptr->row*ptr->col; ++i)
@@ -31,11 +32,11 @@ private:
 		return ptr;
 	}
 
-	Matrix* make_square(Matrix* A11, Matrix* A12, Matrix* A21, Matrix* A22)
+	Matrix<T>* make_square(Matrix<T>* A11, Matrix<T>* A12, Matrix<T>* A21, Matrix<T>* A22)
 	{
 		int n = A11->row;
 
-		Matrix* A = new Matrix(n * 2, n * 2);
+		Matrix<T>* A = new Matrix<T>(n * 2, n * 2);
 
 		for (int i = 0; i < n; ++i)
 		{
@@ -70,7 +71,7 @@ private:
 		return A;
 	}
 
-	Matrix* strassen_aux(Matrix* A, Matrix* B)
+	Matrix<T>* strassen_aux(Matrix<T>* A, Matrix<T>* B)
 
 	{
 		int n = A->row;
@@ -80,59 +81,36 @@ private:
 			return &((*A)*(*B));
 		}
 
-		// std::cout << "A\n";
-		// A->print();
-		// std::cout << "\n\nB\n";
-		// B->print();
-		// std::cout << "\n\nA11\n";
 
-		Matrix* A11 = A->newSub(0, n / 2 - 1, 0, n / 2 - 1);
-		Matrix* A12 = A->newSub(0, n / 2 - 1, n / 2, n - 1);
-		Matrix* A21 = A->newSub(n / 2, n - 1, 0, n / 2 - 1);
-		Matrix* A22 = A->newSub(n / 2, n - 1, n / 2, n - 1);
+		Matrix<T>* A11 = A->newSub(0, n / 2 - 1, 0, n / 2 - 1);
+		Matrix<T>* A12 = A->newSub(0, n / 2 - 1, n / 2, n - 1);
+		Matrix<T>* A21 = A->newSub(n / 2, n - 1, 0, n / 2 - 1);
+		Matrix<T>* A22 = A->newSub(n / 2, n - 1, n / 2, n - 1);
 
 
-		// A11->print();
-		// std::cout << "\n\nA12\n";
-		// A12->print();
-		// std::cout << "\n\nA21\n";
-		// A21->print();
-		// std::cout << "\n\nA22\n";
-		// A22->print();
-		// std::cout << "\n\nB11\n";
+		Matrix<T>* B11 = B->newSub(0, n / 2 - 1, 0, n / 2 - 1);
+		Matrix<T>* B12 = B->newSub(0, n / 2 - 1, n / 2, n - 1);
+		Matrix<T>* B21 = B->newSub(n / 2, n - 1, 0, n / 2 - 1);
+		Matrix<T>* B22 = B->newSub(n / 2, n - 1, n / 2, n - 1);
 
-		Matrix* B11 = B->newSub(0, n / 2 - 1, 0, n / 2 - 1);
-		Matrix* B12 = B->newSub(0, n / 2 - 1, n / 2, n - 1);
-		Matrix* B21 = B->newSub(n / 2, n - 1, 0, n / 2 - 1);
-		Matrix* B22 = B->newSub(n / 2, n - 1, n / 2, n - 1);
+		Matrix<T>* S1 = &(*B12 - *B22);
+		Matrix<T>* S2 = &(*A11 + *A12);
+		Matrix<T>* S3 = &(*A21 + *A22);
+		Matrix<T>* S4 = &(*B21 - *B11);
+		Matrix<T>* S5 = &(*A11 + *A22);
+		Matrix<T>* S6 = &(*B11 + *B22);
+		Matrix<T>* S7 = &(*A12 - *A22);
+		Matrix<T>* S8 = &(*B21 + *B22);
+		Matrix<T>* S9 = &(*A11 - *A21);
+		Matrix<T>* S10 = &(*B11 + *B12);
 
-		// B11->print();
-		// std::cout << "\n\nB12\n";
-		// B12->print();
-		// std::cout << "\n\nB21\n";
-		// B21->print();
-		// std::cout << "\n\nB22\n";
-		// B22->print();
-		// std::cout << "\n\n\n";
-
-		Matrix* S1 = &(*B12 - *B22);
-		Matrix* S2 = &(*A11 + *A12);
-		Matrix* S3 = &(*A21 + *A22);
-		Matrix* S4 = &(*B21 - *B11);
-		Matrix* S5 = &(*A11 + *A22);
-		Matrix* S6 = &(*B11 + *B22);
-		Matrix* S7 = &(*A12 - *A22);
-		Matrix* S8 = &(*B21 + *B22);
-		Matrix* S9 = &(*A11 - *A21);
-		Matrix* S10 = &(*B11 + *B12);
-
-		Matrix* P1 = strassen_aux(A11, S1);
-		Matrix* P2 = strassen_aux(S2, B22);
-		Matrix* P3 = strassen_aux(S3, B11);
-		Matrix* P4 = strassen_aux(A22, S4);
-		Matrix* P5 = strassen_aux(S5, S6);
-		Matrix* P6 = strassen_aux(S7, S8);
-		Matrix* P7 = strassen_aux(S9, S10);
+		Matrix<T>* P1 = strassen_aux(A11, S1);
+		Matrix<T>* P2 = strassen_aux(S2, B22);
+		Matrix<T>* P3 = strassen_aux(S3, B11);
+		Matrix<T>* P4 = strassen_aux(A22, S4);
+		Matrix<T>* P5 = strassen_aux(S5, S6);
+		Matrix<T>* P6 = strassen_aux(S7, S8);
+		Matrix<T>* P7 = strassen_aux(S9, S10);
 
 		delete A11;
 		delete A12;
@@ -155,10 +133,10 @@ private:
 		delete S9;
 		delete S10;
 
-		Matrix* C11 = &(*P5 + *P4 - *P2 + *P6);
-		Matrix* C12 = &(*P1 + *P2);
-		Matrix* C21 = &(*P3 + *P4);
-		Matrix* C22 = &(*P5 + *P1 - *P3 - *P7);
+		Matrix<T>* C11 = &(*P5 + *P4 - *P2 + *P6);
+		Matrix<T>* C12 = &(*P1 + *P2);
+		Matrix<T>* C21 = &(*P3 + *P4);
+		Matrix<T>* C22 = &(*P5 + *P1 - *P3 - *P7);
 
 		delete P1;
 		delete P2;
@@ -168,7 +146,7 @@ private:
 		delete P6;
 		delete P7;
 
-		Matrix* C = make_square(C11, C12, C21, C22);
+		Matrix<T>* C = make_square(C11, C12, C21, C22);
 
 		delete C11;
 		delete C12;
@@ -190,13 +168,61 @@ public:
 	Matrix(int r, int c)
 		: row(r), col(c)
 	{
-		v = new double[r*c];
+		v = new T[r*c];
 	}
 
 	~Matrix()
 	{
 		delete[] v;
 	}
+
+	Matrix(Matrix<T> && rhs)
+		: row(rhs.row), col(rhs.col), v(rhs.v)
+	{
+		rhs.v = nullptr;
+	}
+
+	Matrix & operator=(Matrix<T> && rhs)
+	{
+		if (this != &rhs)
+		{
+			delete this->v;
+			this->v = rhs.v;
+			rhs.v = nullptr;
+		}
+
+		return *this;
+	}
+
+	Matrix(Matrix<T> const & rhs)
+		: row(rhs.row), col(rhs.col), v(new T[rhs.row*rhs.col])
+	{
+		for (int i = 0; i < rhs.row*rhs.col; ++i)
+		{
+			this->v[i] = rhs.v[i];
+		}
+	}
+
+	Matrix & operator=(Matrix<T> const & rhs)
+	{
+		if (this == &rhs)
+		{
+			return *this;
+		}
+
+		T* tmp = new T[rhs.row*rhs.col];
+
+		this->row = rhs.row;
+		this->col = rhs.col;
+
+		for (int i = 0; i < rhs.row*rhs.col; ++i)
+		{
+			tmp[i] = rhs.v[i];
+		}
+		delete this->v;
+		this->v = tmp;
+	}
+
 
 	void zero()
 	{
@@ -223,7 +249,7 @@ public:
 	
 		for (int i = 0; i < this->row*this->col; ++i)
 		{
-			this->v[i] = (max - min) * ((double)rand() / (double)RAND_MAX) + min;
+			this->v[i] = static_cast<T>((max - min) * ((double)rand() / (double)RAND_MAX) + min);
 		}
 
 	}
@@ -243,17 +269,18 @@ public:
 	int r() { return this->row; }
 
 	int c() { return this->col; }
-	
+
+
 	// OPERATORS
 
-	double* operator[](int n)
+	T* operator[](int n)
 	{
 		if (n >= this->row) { throw - 1; }
 
 		return &(this->v[n*this->col]);
 	}
 
-	Matrix& operator+=(const Matrix& b)
+	Matrix<T>& operator+=(const Matrix<T>& b)
 	{
 		if (this->row != b.row || this->col != b.col) { throw - 1; }
 
@@ -265,7 +292,7 @@ public:
 		return *this;
 	}
 
-	Matrix& operator-=(const Matrix& b)
+	Matrix<T>& operator-=(const Matrix<T>& b)
 	{
 		if (this->row != b.row || this->col != b.col) { throw - 1; }
 
@@ -277,7 +304,7 @@ public:
 		return *this;
 	}
 
-	Matrix& operator*=(const int n)
+	Matrix<T>& operator*=(const int n)
 	{
 		for (int i = 0; i < this->row * this->col; ++i)
 		{
@@ -287,11 +314,11 @@ public:
 		return *this;
 	}
 
-	friend Matrix& operator+(const Matrix& a, const Matrix& b)
+	friend Matrix<T>& operator+(const Matrix<T>& a, const Matrix<T>& b)
 	{
 		if (a.row != b.row || a.col != b.col) { throw - 1; }
 
-		Matrix* c = new Matrix(a.row, a.col);
+		Matrix<T>* c = new Matrix<T>(a.row, a.col);
 
 		for (int i = 0; i < a.row * a.col; ++i)
 		{
@@ -301,11 +328,11 @@ public:
 		return *c;  
 	}
 
-	friend Matrix& operator-(const Matrix& a, const Matrix& b)
+	friend Matrix<T>& operator-(const Matrix<T>& a, const Matrix<T>& b)
 	{
 		if (a.row != b.row || a.col != b.col) { throw - 1; }
 
-		Matrix* c = new Matrix(a.row, a.col);
+		Matrix<T>* c = new Matrix<T>(a.row, a.col);
 
 		for (int i = 0; i < a.row * a.col; ++i)
 		{
@@ -315,9 +342,9 @@ public:
 		return *c;
 	}
 
-	friend Matrix& operator*(const Matrix& a, const int n)
+	friend Matrix<T>& operator*(const Matrix<T>& a, const int n)
 	{
-		Matrix* c = new Matrix(a.row, a.col);
+		Matrix<T>* c = new Matrix<T>(a.row, a.col);
 
 		for (int i = 0; i < a.row * a.col; ++i)
 		{
@@ -327,9 +354,9 @@ public:
 		return *c;
 	}
 
-	friend Matrix& operator*(const int n, const Matrix& a)
+	friend Matrix<T>& operator*(const int n, const Matrix<T>& a)
 	{
-		Matrix* c = new Matrix(a.row, a.col);
+		Matrix<T>* c = new Matrix<T>(a.row, a.col);
 
 		for (int i = 0; i < a.row * a.col; ++i)
 		{
@@ -339,11 +366,11 @@ public:
 		return *c;
 	}
 
-	friend Matrix& operator*(const Matrix& a, const Matrix& b)
+	friend Matrix<T>& operator*(const Matrix<T>& a, const Matrix<T>& b)
 	{
 		// if (a.col != b.row) { throw - 1; }
 
-		Matrix* c = new Matrix(a.row, b.col);
+		Matrix<T>* c = new Matrix<T>(a.row, b.col);
 		(*c).zero();
 
 		for (int i = 0; i < a.row; ++i)
@@ -361,9 +388,37 @@ public:
 		return *c;
 	}
 
+	bool operator==(Matrix<T>& b)
+	{
+		if (this->row != b.r()) 
+		{ 
+			std::cout << "Numero righe sbagliato";
+			return false;
+		}
+		if (this->col != b.c()) 
+		{
+			std::cout << "Numero colonne sbagliato";
+			return false;
+		}
+
+		for (int i = 0; i < b.r(); ++i)
+		{
+			for (int j = 0; j < b.c(); ++j)
+			{
+				if ((*this)[i][j] != b[i][j])
+				{
+					std::cout << "Valore i=" << i << ", j=" << j << " sbagliato.";
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	// STRASSEN
 	
-	Matrix& strassen(const Matrix& b)
+	Matrix<T>& strassen(const Matrix<T>& b)
 	{
 		
 		if (this->col != b.row) { throw - 1; }
@@ -390,7 +445,7 @@ public:
 			++k;
 		}
 
-		Matrix* A = new Matrix(static_cast<int>(pow(2, k)), static_cast<int>(pow(2, k)));
+		Matrix<T>* A = new Matrix<T>(static_cast<int>(pow(2, k)), static_cast<int>(pow(2, k)));
 		A->zero();
 
 		for (int i = 0; i < this->row; ++i)
@@ -401,7 +456,7 @@ public:
 			}
 		}
 
-		Matrix* B = new Matrix(static_cast<int>(pow(2, k)), static_cast<int>(pow(2, k)));
+		Matrix<T>* B = new Matrix<T>(static_cast<int>(pow(2, k)), static_cast<int>(pow(2, k)));
 		B->zero();
 
 		for (int i = 0; i < b.row; ++i)
@@ -413,14 +468,13 @@ public:
 		}
 
 
-		Matrix* C_0 = strassen_aux(A, B);
+		Matrix<T>* C_0 = strassen_aux(A, B);
 		delete A;
 		delete B;
-		Matrix* C = C_0->newSub(0, this->row - 1, 0, b.col - 1);
+		Matrix<T>* C = C_0->newSub(0, this->row - 1, 0, b.col - 1);
 		delete C_0;
 
 		return *C;
 	}
 
-	
 };
