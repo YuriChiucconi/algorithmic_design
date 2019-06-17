@@ -11,6 +11,7 @@ Sono presenti:
 - `select` (implementato in modo da supportare la presenza di elementi ripetuti)
 
 Soltanto `heap_sort` è stato scritto per praticità all'interno della classe `min_heap` scritta per l'esercizio 3:
+
 https://github.com/YuriChiucconi/algorithmic_design/blob/master/03_heaps/min_heap_class.cpp .
 
 Attraverso l'utilizzo del codice presente nel file `main.cpp` è stata effettuata una misurazione dei tempi impiegati dai metodi `insertion_sort` e `quick_sort` per ordinare vettori di lunghezza n sia nei casi peggiori, ovvero quando gli elementi sono ordinati in ordine decrescente, sia nei casi migliori, cioè con vettori già ordinati.
